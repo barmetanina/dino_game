@@ -1,35 +1,71 @@
 const dino = document.getElementById("dino")
 const rock = document.getElementById("rock")
 const score = document.getElementById("score")
+const startButton = document.getElementById("startButton")
+const gameOverButton = document.getElementById("gameOverButton")
 
-score.innerText = 0 
+let gameStarted = false
+let gameOver = false
+let scoreInterval
+
+score.innerText = 0
+startButton.style.display = "block"
+gameOverButton.style.display = "none"
 
 function jump() {
-  dino.classList.add("jump-animation")
-  setTimeout(() => dino.classList.remove("jump-animation"), 500)
+  if (!gameStarted || gameOver) return
+
+  if (!dino.classList.contains("jump-animation")) {
+    dino.classList.add("jump-animation")
+    setTimeout(() => dino.classList.remove("jump-animation"), 1000)
+  }
 }
 
-document.addEventListener("keypress", (event) => {
-  if (!dino.classList.contains("jump-animation")) {
-    jump()
-  }
+document.addEventListener("keypress", () => {
+  jump()
 })
 
-setInterval(() => {
-  const dinoTop = parseInt(
-    window.getComputedStyle(dino).getPropertyValue("top"),
-  )
-  const rockLeft = parseInt(
-    window.getComputedStyle(rock).getPropertyValue("left"),
-  )
-  score.innerText = Number(score.innerText) + 2
+function startGame() {
+  if (gameStarted) return
 
-  if (rockLeft < 0) {
-    rock.style.display = "none"
-  } else {
-    rock.style.display = ""
-  }
+  console.log("Start Button geklickt")
 
-  if (rockLeft < 50 && rockLeft > 0 && dinoTop > 150) {
-  }
-}, 50)
+  gameStarted = true
+  gameOver = false
+  score.innerText = 0
+
+  startButton.style.display = "none"
+  gameOverButton.style.display = "none"
+
+  rock.classList.remove("rock-animation")
+  void rock.offsetWidth
+  rock.classList.add("rock-animation")
+
+  scoreInterval = setInterval(() => {
+    const dinoTop = parseInt(
+      window.getComputedStyle(dino).getPropertyValue("top")
+    )
+    const rockLeft = parseInt(
+      window.getComputedStyle(rock).getPropertyValue("left")
+    )
+
+    score.innerText = Number(score.innerText) + 1
+
+    if (rockLeft < 90 && rockLeft > 0 && dinoTop > 150) {
+      clearInterval(scoreInterval)
+      rock.classList.remove("rock-animation")
+      gameStarted = false
+      gameOver = true
+
+      gameOverButton.style.display = "block"
+    }
+  }, 50)
+}
+
+function hideGameOver() {
+  gameOverButton.style.display = "none"
+  startButton.style.display = "block"
+}
+
+startButton.addEventListener("click", startGame)
+gameOverButton.addEventListener("click", hideGameOver)
